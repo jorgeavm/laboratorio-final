@@ -55,17 +55,30 @@ jobs:
           npm ci
           npm run build
 
-      # Descargar e Instalar SonarScanner CLI usando CURL
+      # Descargar SonarScanner CLI usando CURL con Validaciones
       - name: Install SonarScanner CLI with CURL
         run: |
+          # Verificar si curl y unzip están instalados
+          sudo apt-get update && sudo apt-get install -y curl unzip
+
+          # Descargar el archivo ZIP y validar éxito
           curl -L "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux.zip" -o sonar-scanner-cli.zip
-          unzip sonar-scanner-cli.zip
-          echo "$(pwd)/sonar-scanner-6.2.1.4610-linux/bin" >> $GITHUB_PATH
+          if [ $? -ne 0 ]; then
+            echo "Error descargando SonarScanner CLI."
+            exit 1
+          fi
+
+          # Descomprimir y validar éxito
+          unzip sonar-scanner-cli.zip -d sonar-scanner || exit 1
+
+          # Configurar permisos y añadir al PATH
+          chmod +x sonar-scanner/sonar-scanner-6.2.1.4610-linux/bin/sonar-scanner
+          echo "$(pwd)/sonar-scanner/sonar-scanner-6.2.1.4610-linux/bin" >> $GITHUB_PATH
 
       # Ejecutar Análisis de SonarCloud usando `curl`
       - name: Run SonarCloud Analysis with CURL
         run: |
-          ./sonar-scanner-6.2.1.4610-linux/bin/sonar-scanner \
+          sonar-scanner \
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
             -Dsonar.sources=src \
@@ -78,6 +91,6 @@ jobs:
           STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.projectStatus.status')
           echo "Quality Gate Status: $STATUS"
           if [ "$STATUS" != "OK" ]; then
-            echo "Quality Gate Failed. Please check SonarCloud for more details."
+            echo "Quality Gate Failed. Please check SonarCloud for details."
             exit 1
           fi
