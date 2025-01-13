@@ -99,3 +99,37 @@ jobs:
             echo "Quality Gate Failed. Please check SonarCloud for details."
             exit 1
           fi
+
+      # Instalar OWASP Dependency-Check CLI
+      - name: Install OWASP Dependency-Check CLI
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jre
+          curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.7/dependency-check-9.0.7-release.zip -o dependency-check.zip
+          unzip dependency-check.zip
+          sudo mv dependency-check /usr/local/bin/dependency-check
+
+      # Ejecutar Análisis con OWASP Dependency-Check
+      - name: Run OWASP Dependency-Check
+        run: |
+          mkdir -p reports
+          /usr/local/bin/dependency-check/bin/dependency-check.sh \
+          --project "${{ github.event.repository.name }}" \
+          --scan "./package-lock.json" \
+          --format "HTML" \
+          --out "reports/owasp-dependency-check-report.html"
+
+      # Publicar Reporte de OWASP Dependency-Check como Artefacto
+      - name: Upload OWASP Dependency-Check Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: OWASP-Dependency-Check-Report
+          path: reports/owasp-dependency-check-report.html
+
+      # Falla si se Detectan Vulnerabilidades Críticas
+      - name: Fail if Critical Vulnerabilities Found
+        run: |
+          if grep -q "CRITICAL" "reports/owasp-dependency-check-report.html"; then
+            echo "❌ Vulnerabilities Detected! Check the OWASP report for details."
+            exit 1
+          fi
