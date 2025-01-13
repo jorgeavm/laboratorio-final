@@ -2,7 +2,7 @@ name: Workflow
 on:
   push:
     branches:
-      - feature-seguridad
+      - main
 
 jobs:
   SAST:
