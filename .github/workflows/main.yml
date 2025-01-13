@@ -35,7 +35,7 @@ jobs:
         run: |
           curl -X POST "https://sonarcloud.io/api/projects/create" \
           -u "${{ secrets.SONAR_TOKEN }}:" \
-          -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
+          #-d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
           -d "name=${{ github.repository }}" \
           -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
           echo "Proyecto creado en SonarCloud."
