@@ -55,8 +55,9 @@ jobs:
           npm ci
           npm run build
 
-       # Ejecutar Análisis de SonarCloud usando la Acción Oficial
-      - name: SonarCloud Scan
+      # Ejecutar Análisis de SonarCloud
+      - name: Run SonarCloud Analysis (only on feature-seguridad)
+        if: github.ref == 'refs/heads/feature-seguridad'
         uses: SonarSource/sonarcloud-github-action@master
         with:
           organization: ${{ secrets.SONAR_ORGANIZATION }}
