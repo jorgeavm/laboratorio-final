@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   SAST:
@@ -79,20 +81,30 @@ jobs:
          #   exit 1
         #  fi
 
-      # Ejecutar Análisis de SonarCloud usando `args` 
+      # # Ejecutar Análisis de SonarCloud usando `args` 
+      # - name: Run SonarCloud Analysis (Corrected)
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   #uses: SonarSource/sonarcloud-github-action@v2.0.2
+      #   with:
+      #     args: >
+      #       -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+      #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      #       -Dsonar.branch.name=main
+      #       -Dsonar.host.url=https://sonarcloud.io
+      #       -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      #       -Dsonar.sources=src
+      #       -Dsonar.language=ts
+      #       -Dsonar.qualitygate.wait=true
+            
       - name: Run SonarCloud Analysis (Corrected)
-        uses: SonarSource/sonarcloud-github-action@master
-        #uses: SonarSource/sonarcloud-github-action@v2.0.2
+        uses: actions/checkout@v4
         with:
-          args: >
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.branch.name=main
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-            -Dsonar.sources=src
-            -Dsonar.language=ts
-            -Dsonar.qualitygate.wait=true
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       # Validar Quality Gate
       - name: Validate SonarCloud Quality Gate
