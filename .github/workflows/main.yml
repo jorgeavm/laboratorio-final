@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Verificar si el Proyecto Existe en SonarCloud
+      # Verificar si el Proyecto existe en SonarCloud
       - name: Check if Project Exists
         id: check_project
         run: |
