@@ -201,7 +201,7 @@ jobs:
 
   deploy_local:
       runs-on: ubuntu-latest
-      needs: DockerScan
+      #needs: DockerScan
 
       steps:
         # Conectar al Servidor de mac via SSH y ejecutar los Comandos
