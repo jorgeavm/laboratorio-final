@@ -55,7 +55,7 @@ jobs:
           npm ci
           npm run build
 
-       # Validar Credenciales antes del Análisis
+       # Validar Token y Proyecto Antes del Análisis
       - name: Validate SonarCloud Token and Project Key
         run: |
           if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
@@ -65,6 +65,15 @@ jobs:
 
           if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
             echo "Error: SONAR_PROJECT_KEY no está configurado."
+            exit 1
+          fi
+
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "Error: El proyecto no existe o el token no tiene permisos."
             exit 1
           fi
 
