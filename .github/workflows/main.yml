@@ -204,7 +204,7 @@ jobs:
       #needs: DockerScan
 
       steps:
-        # Conectar al Servidor Mac via SSH y Ejecutar los Comandos
+        # Conectar al Servidor de mac via SSH y Ejecutar los Comandos
         - name: Deploy en Mac Server via SSH
           uses: appleboy/ssh-action@v1.0.3
           with:
