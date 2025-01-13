@@ -216,7 +216,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
 
-      #  Ejecutar comandos SSH manualmente
+      #  Ejecutar comando SSH manualmente
       - name: Connect and Deploy via SSH
         run: |
           ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
