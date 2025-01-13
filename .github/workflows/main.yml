@@ -1,1 +1,27 @@
+name: Workflow
+on:
+  push:
+    branches:
+      - feature-seguridad
 
+jobs:
+  SAST:
+    runs-on: ubuntu-24.04
+
+    steps:
+      # Clonar el repositorio
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Crear el Proyecto en SonarCloud usando la API REST
+      - name: Crear proyecto en SonarCloud
+        run: |
+          curl -X POST "https://sonarcloud.io/api/projects/create" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
+          -d "name=${{ github.repository }}" \
+          -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
+
+      # Confirmar Creación Exitosa
+      - name: Verificar creación del proyecto
+        run: echo "Project ${{ secrets.SONAR_PROJECT_KEY }} has been created on SonarCloud!"
