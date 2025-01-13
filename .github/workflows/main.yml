@@ -81,8 +81,8 @@ jobs:
 
       # Ejecutar Análisis de SonarCloud usando `args` 
       - name: Run SonarCloud Analysis (Corrected)
-        #uses: SonarSource/sonarcloud-github-action@master
-        uses: SonarSource/sonarcloud-github-action@v2.0.2
+        uses: SonarSource/sonarcloud-github-action@master
+        #uses: SonarSource/sonarcloud-github-action@v2.0.2
         with:
           args: >
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
