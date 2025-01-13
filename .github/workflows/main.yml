@@ -56,7 +56,7 @@ jobs:
           npm run build
 
       # Ejecutar Análisis de SonarCloud
-      - name: Run SonarCloud Analysis (only on feature-seguridad)
+      - name: Run SonarCloud Analysis (solo en feature-seguridad)
         if: github.ref == 'refs/heads/feature-seguridad'
         uses: SonarSource/sonarcloud-github-action@master
         with:
