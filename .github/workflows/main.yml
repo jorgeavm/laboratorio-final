@@ -204,18 +204,28 @@ jobs:
       #needs: DockerScan
 
       steps:
-        # Conectar al Servidor de mac via SSH y ejecutar los Comandos
-        - name: Deploy en Mac Server via SSH
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.MAC_HOST }}
-            username: ${{ secrets.MAC_USER }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            script: |
-              # Descargar la última imagen desde Docker Hub
-              docker pull jorgeavm/laboratorio-final-devsecops:latest
-              # Detener el contenedor anterior si está en ejecución
-              docker stop my-app-container || true
-              docker rm my-app-container || true
-              # Ejecutar un nuevo contenedor con la imagen actualizada
-              docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+      # Checkout del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Configurar la clave privada SSH
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
+
+      #  Ejecutar comandos SSH manualmente
+      - name: Connect and Deploy via SSH
+        run: |
+          ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
+            echo "Connected successfully!"
+            docker pull jorgeavm/laboratorio-final-devsecops:latest
+            docker stop devsecops-container-lf || true
+            docker rm devsecops-container-lf || true
+            docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+          EOF
+
+
+  
