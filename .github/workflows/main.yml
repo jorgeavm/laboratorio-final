@@ -55,27 +55,34 @@ jobs:
           npm ci
           npm run build
 
-      # Descargar SonarScanner CLI usando CURL con Validaciones
+      # Instalar y Validar SonarScanner CLI usando `curl`
       - name: Install SonarScanner CLI with CURL
         run: |
-          # Verificar si curl y unzip están instalados
+          # Instalar herramientas faltantes si es necesario
           sudo apt-get update && sudo apt-get install -y curl unzip
-
-          # Descargar el archivo ZIP y validar éxito
+          
+          # Descargar SonarScanner CLI con validación
+          echo "Descargando SonarScanner CLI..."
           curl -L "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux.zip" -o sonar-scanner-cli.zip
-          if [ $? -ne 0 ]; then
-            echo "Error descargando SonarScanner CLI."
+
+          # Validar si el archivo fue descargado correctamente
+          if [ ! -f sonar-scanner-cli.zip ]; then
+            echo "Error: Archivo no encontrado después de la descarga."
             exit 1
           fi
 
-          # Descomprimir y validar éxito
-          unzip sonar-scanner-cli.zip -d sonar-scanner || exit 1
+          # Descomprimir el archivo ZIP y validar éxito
+          unzip sonar-scanner-cli.zip -d sonar-scanner
+          if [ $? -ne 0 ]; then
+            echo "Error: Fallo al descomprimir SonarScanner CLI."
+            exit 1
+          fi
 
-          # Configurar permisos y añadir al PATH
+          # Asignar permisos y añadir al PATH
           chmod +x sonar-scanner/sonar-scanner-6.2.1.4610-linux/bin/sonar-scanner
           echo "$(pwd)/sonar-scanner/sonar-scanner-6.2.1.4610-linux/bin" >> $GITHUB_PATH
 
-      # Ejecutar Análisis de SonarCloud usando `curl`
+      # Ejecutar el Análisis con SonarCloud usando el CLI
       - name: Run SonarCloud Analysis with CURL
         run: |
           sonar-scanner \
@@ -85,7 +92,7 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-      # Validar Quality Gate
+      # Validar Quality Gate y Falla el Pipeline si No Se Cumple
       - name: Validate SonarCloud Quality Gate
         run: |
           STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.projectStatus.status')
