@@ -72,6 +72,8 @@ jobs:
           -u "${{ secrets.SONAR_TOKEN }}:" \
           "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
+          echo $RESPONSE
+
           if [ "$RESPONSE" != "200" ]; then
             echo "Error: El proyecto no existe o el token no tiene permisos."
             exit 1
