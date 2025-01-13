@@ -102,7 +102,7 @@ jobs:
 
   SCA:
     needs: SAST
-    name: OWASP Dependency-Check
+    name: SCA
     runs-on: ubuntu-24.04
     
     steps:
