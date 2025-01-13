@@ -2,7 +2,7 @@ name: Workflow
 on:
   push:
     branches:
-      - main
+      - feature-seguridad
   pull_request:
     types: [opened, synchronize, reopened]
 
