@@ -36,9 +36,39 @@ jobs:
           -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
           -d "name=${{ github.repository }}" \
           -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
-          echo "✅ Proyecto creado en SonarCloud."
+          echo "Proyecto creado en SonarCloud."
 
       # Confirmar que el Proyecto ya Existía
       - name: Project Already Exists
         if: env.PROJECT_EXISTS == 'true'
-        run: echo "✅ El proyecto ya existe en SonarCloud."
+        run: echo "El proyecto ya existe en SonarCloud."
+
+      # Configurar Node.js y TypeScript
+      - name: Set up Node.js and TypeScript
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Instalar Dependencias y Compilar TypeScript
+      - name: Install Dependencies and Build
+        run: |
+          npm ci
+          npm run build
+
+      # Ejecutar Pruebas y Generar Reporte de Cobertura
+      - name: Run Tests and Generate Coverage Report
+        run: |
+          npm run test -- --coverage --coverageReporters=lcov
+
+      # Ejecutar Análisis de Seguridad con SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: ${{ secrets.SONAR_ORGANIZATION }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          token: ${{ secrets.SONAR_TOKEN }}
+
+      # Validar Quality Gate
+      - name: Fail if Quality Gate Fails
+        if: failure()
+        run: echo "Quality Gate Failed. Review results on SonarCloud."
