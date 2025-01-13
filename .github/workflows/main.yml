@@ -142,7 +142,7 @@ jobs:
   #         path: ./reports
         
   DockerBuild:
-      needs: SCA
+      #needs: SCA
       runs-on: ubuntu-24.04
       steps:
         # Checkout del código fuente
