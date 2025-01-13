@@ -68,17 +68,18 @@ jobs:
             exit 1
           fi
 
-      # Ejecutar Análisis de SonarCloud
-      - name: Run SonarCloud Analysis (solo en feature-seguridad)
-        if: github.ref == 'refs/heads/feature-seguridad'
+      # Ejecutar Análisis de SonarCloud usando `args` en la Acción Oficial
+      - name: Run SonarCloud Analysis (Corrected)
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          organization: ${{ secrets.SONAR_ORGANIZATION }}
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          token: ${{ secrets.SONAR_TOKEN }}
           args: >
-            -Dsonar.sources=src
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.sources=src
+            -Dsonar.language=ts
+            -Dsonar.qualitygate.wait=true
 
       # Validar Quality Gate
       - name: Validate SonarCloud Quality Gate
