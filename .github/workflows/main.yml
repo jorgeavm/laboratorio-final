@@ -55,7 +55,7 @@ jobs:
           npm ci
           npm run build
 
-       # Validar Token y Proyecto Antes del Análisis
+       # Validar Token y Proyecto Antes de realizar el Análisis
       - name: Validate SonarCloud Token and Project Key
         run: |
           if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
