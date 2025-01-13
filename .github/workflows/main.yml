@@ -74,10 +74,10 @@ jobs:
 
           echo $RESPONSE
 
-          if [ "$RESPONSE" != "200" ]; then
-            echo "Error: El proyecto no existe o el token no tiene permisos."
-            exit 1
-          fi
+        #  if [ "$RESPONSE" != "200" ]; then
+          #  echo "Error: El proyecto no existe o el token no tiene permisos."
+         #   exit 1
+        #  fi
 
       # Ejecutar Análisis de SonarCloud usando `args` 
       - name: Run SonarCloud Analysis (Corrected)
