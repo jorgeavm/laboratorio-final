@@ -13,15 +13,32 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Crear el Proyecto en SonarCloud usando la API REST
-      - name: Crear proyecto en SonarCloud
+      # Verificar si el Proyecto Existe en SonarCloud
+      - name: Check if Project Exists
+        id: check_project
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+
+          if [ "$RESPONSE" == "200" ]; then
+            echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      # Crear el Proyecto Solo si No Existe
+      - name: Create Project on SonarCloud (if not exists)
+        if: env.PROJECT_EXISTS == 'false'
         run: |
           curl -X POST "https://sonarcloud.io/api/projects/create" \
           -u "${{ secrets.SONAR_TOKEN }}:" \
           -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
           -d "name=${{ github.repository }}" \
           -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
+          echo "✅ Proyecto creado en SonarCloud."
 
-      # Confirmar Creación Exitosa
-      - name: Verificar creación del proyecto
-        run: echo "Project ${{ secrets.SONAR_PROJECT_KEY }} has been created on SonarCloud!"
+      # Confirmar que el Proyecto ya Existía
+      - name: Project Already Exists
+        if: env.PROJECT_EXISTS == 'true'
+        run: echo "✅ El proyecto ya existe en SonarCloud."
