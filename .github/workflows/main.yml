@@ -213,9 +213,9 @@ jobs:
             key: ${{ secrets.SSH_PRIVATE_KEY }}
             script: |
               # Descargar la última imagen desde Docker Hub
-              docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
+              docker pull jorgeavm/laboratorio-final-devsecops:latest
               # Detener el contenedor anterior si está en ejecución
               docker stop my-app-container || true
               docker rm my-app-container || true
               # Ejecutar un nuevo contenedor con la imagen actualizada
-              docker run -d -p 3000:3000 --name my-app-container ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
+              docker run -d -p 3000:3000 --name my-app-container jorgeavm/laboratorio-final-devsecops:latest
