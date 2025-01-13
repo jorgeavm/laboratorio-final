@@ -79,7 +79,7 @@ jobs:
             exit 1
           fi
 
-      # Ejecutar Análisis de SonarCloud usando `args` en la Acción Oficial
+      # Ejecutar Análisis de SonarCloud usando `args` 
       - name: Run SonarCloud Analysis (Corrected)
         #uses: SonarSource/sonarcloud-github-action@master
         uses: SonarSource/sonarcloud-github-action@v2.0.2
