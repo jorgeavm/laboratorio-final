@@ -1,5 +1,6 @@
 name: Workflow
 on:
+  workflow_dispatch:  # Permite la ejecución manual desde GitHub Actions
   push:
     branches:
       - feature-seguridad
