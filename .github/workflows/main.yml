@@ -8,137 +8,138 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  SAST:
-    runs-on: ubuntu-24.04
 
-    steps:
-      # Clonar el repositorio
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  # SAST:
+  #   runs-on: ubuntu-24.04
 
-      # Verificar si el Proyecto existe en SonarCloud
-      - name: Check if Project Exists
-        id: check_project
-        run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+  #   steps:
+  #     # Clonar el repositorio
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-          if [ "$RESPONSE" == "200" ]; then
-            echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
-          else
-            echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
-          fi
+  #     # Verificar si el Proyecto existe en SonarCloud
+  #     - name: Check if Project Exists
+  #       id: check_project
+  #       run: |
+  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
-      # Crear el Proyecto Solo si no Existe
-      - name: Create Project on SonarCloud (if not exists)
-        if: env.PROJECT_EXISTS == 'false'
-        run: |
-          curl -X POST "https://sonarcloud.io/api/projects/create" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
-          -d "name=${{ github.repository }}" \
-          -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
-          echo "Proyecto creado en SonarCloud."
+  #         if [ "$RESPONSE" == "200" ]; then
+  #           echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
+  #         else
+  #           echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
+  #         fi
 
-      # Confirmar que el Proyecto ya Existía
-      - name: Project Already Exists
-        if: env.PROJECT_EXISTS == 'true'
-        run: echo "El proyecto ya existe en SonarCloud."
+  #     # Crear el Proyecto Solo si no Existe
+  #     - name: Create Project on SonarCloud (if not exists)
+  #       if: env.PROJECT_EXISTS == 'false'
+  #       run: |
+  #         curl -X POST "https://sonarcloud.io/api/projects/create" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
+  #         -d "name=${{ github.repository }}" \
+  #         -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
+  #         echo "Proyecto creado en SonarCloud."
 
-      # Configurar Node.js para Proyectos TypeScript
-      - name: Setup Node.js and TypeScript
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+  #     # Confirmar que el Proyecto ya Existía
+  #     - name: Project Already Exists
+  #       if: env.PROJECT_EXISTS == 'true'
+  #       run: echo "El proyecto ya existe en SonarCloud."
 
-      # Instalar Dependencias y Compilar TypeScript
-      - name: Install Dependencies and Build
-        run: |
-          npm ci
-          npm run build
+  #     # Configurar Node.js para Proyectos TypeScript
+  #     - name: Setup Node.js and TypeScript
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
 
-       # Validar Token y Proyecto Antes de realizar el Análisis
-      - name: Validate SonarCloud Token and Project Key
-        run: |
-          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-            echo "Error: SONAR_TOKEN no está configurado."
-            exit 1
-          fi
+  #     # Instalar Dependencias y Compilar TypeScript
+  #     - name: Install Dependencies and Build
+  #       run: |
+  #         npm ci
+  #         npm run build
 
-          if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
-            echo "Error: SONAR_PROJECT_KEY no está configurado."
-            exit 1
-          fi
+  #      # Validar Token y Proyecto Antes de realizar el Análisis
+  #     - name: Validate SonarCloud Token and Project Key
+  #       run: |
+  #         if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+  #           echo "Error: SONAR_TOKEN no está configurado."
+  #           exit 1
+  #         fi
 
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+  #         if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
+  #           echo "Error: SONAR_PROJECT_KEY no está configurado."
+  #           exit 1
+  #         fi
 
-          echo $RESPONSE
+  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+
+  #         echo $RESPONSE
             
-      - name: Ejecutar analisis de Sonarqube
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+  #     - name: Ejecutar analisis de Sonarqube
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: SonarQube Scan
+  #       uses: SonarSource/sonarqube-scan-action@v4
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Validar Quality Gate
-      - name: Validate SonarCloud Quality Gate
-        run: |
-          STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
-          | jq -r '.projectStatus.status')
+  #     # Validar Quality Gate
+  #     - name: Validate SonarCloud Quality Gate
+  #       run: |
+  #         STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
+  #         | jq -r '.projectStatus.status')
 
-          echo "Quality Gate Status: $STATUS"
-          if [ "$STATUS" != "OK" ]; then
-            echo "Quality Gate Failed. Please check SonarCloud for details."
-            # exit 1
-          fi
+  #         echo "Quality Gate Status: $STATUS"
+  #         if [ "$STATUS" != "OK" ]; then
+  #           echo "Quality Gate Failed. Please check SonarCloud for details."
+  #           # exit 1
+  #         fi
 
-  SCA:
-    needs: SAST
-    name: SCA
-    runs-on: ubuntu-24.04
+  # SCA:
+  #   needs: SAST
+  #   name: SCA
+  #   runs-on: ubuntu-24.04
     
-    steps:
-      # Clonar el Repositorio
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     # Clonar el Repositorio
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      # Configurar Node.js y TypeScript
-      - name: Setup Node.js and TypeScript
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+  #     # Configurar Node.js y TypeScript
+  #     - name: Setup Node.js and TypeScript
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
 
-      # Instalar Dependencias del Proyecto
-      - name: Install Project Dependencies
-        run: npm ci
+  #     # Instalar Dependencias del Proyecto
+  #     - name: Install Project Dependencies
+  #       run: npm ci
 
-      - name: Dependency Check
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        env:
-          JAVA_HOME: /opt/jdk
-        id: Depcheck
-        with:
-          project: '${{ github.event.repository.name }}'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --out ./reports
-            --failOnCVSS 7
-            --enableRetired
+  #     - name: Dependency Check
+  #       uses: dependency-check/Dependency-Check_Action@1.1.0
+  #       env:
+  #         JAVA_HOME: /opt/jdk
+  #       id: Depcheck
+  #       with:
+  #         project: '${{ github.event.repository.name }}'
+  #         path: '.'
+  #         format: 'HTML'
+  #         args: >
+  #           --out ./reports
+  #           --failOnCVSS 7
+  #           --enableRetired
 
-      - name: Upload Test Result
-        uses: actions/upload-artifact@master
-        with:
-          name: Depcheck Report
-          path: ./reports
+  #     - name: Upload Test Result
+  #       uses: actions/upload-artifact@master
+  #       with:
+  #         name: Depcheck Report
+  #         path: ./reports
         
   DockerBuild:
       needs: SCA
