@@ -105,6 +105,8 @@ jobs:
   SCA:
     runs-on: ubuntu-24.04
     needs: SAST
+    env:
+      RESULT: "-1"
     
     steps:
       # Clonar el Repositorio
@@ -155,13 +157,20 @@ jobs:
           curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
           unzip dependency-check-8.4.0-release.zip
           
+          echo "Before: $RESULT"
+          echo "Before: ${RESULT}"
+          
           # Ejecutar Dependency Check con failOnCVSS
-          ./dependency-check/bin/dependency-check.sh \
+          RESULT=$(./dependency-check/bin/dependency-check.sh \
             --project "MyProject" \
             --scan . \
             --out reports \
             --failOnCVSS 7 \
-            --enableRetired || echo "Dependency Check terminó con errores, reportando."
+            --enableRetired || echo "Dependency Check terminó con errores, reportando.")
+
+          
+          echo "After: $RESULT"
+          echo "After: ${RESULT}"
 
           # Evaluar el código de salida
           if [ $? -ne 0 ]; then
