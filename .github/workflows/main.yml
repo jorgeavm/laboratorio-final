@@ -219,7 +219,7 @@ jobs:
             mkdir -p ~/.ssh
             ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts || exit 0
 
-        # Probar conexión SSH
+        # Probar Conexión SSH
         - name: Probar Conexión
           run: |
             ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
