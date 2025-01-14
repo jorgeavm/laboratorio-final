@@ -143,6 +143,12 @@ jobs:
       #     fi
 
       # Ejecutar OWASP Dependency-Check con Control
+
+      - name: Instalar .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
       - name: Ejecutar OWASP Dependency-Check con `exit 1`
         run: |
           curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
