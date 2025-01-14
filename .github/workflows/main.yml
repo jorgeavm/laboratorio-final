@@ -236,6 +236,7 @@ jobs:
             host: ${{ secrets.MAC_HOST }}
             username: ${{ secrets.MAC_USER }}
             key: ${{ secrets.SSH_PRIVATE_KEY }}
+            port: 22
             script: |
               echo "Conexión SSH exitosa"
               docker pull jorgeavm/laboratorio-final-devsecops:latest
