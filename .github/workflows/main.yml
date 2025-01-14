@@ -178,30 +178,30 @@ jobs:
   #         run: |
   #           docker push jorgeavm/laboratorio-final-devsecops:latest
 
-  # DockerScan:
-  #     needs: DockerBuild
-  #     runs-on: ubuntu-24.04
-  #     steps:
+    DockerScan:
+        #needs: DockerBuild
+        runs-on: ubuntu-24.04
+        steps:
 
-  #       - name: Docker Login
-  #         uses: docker/login-action@v3.0.0
-  #         with:
-  #           username: ${{ secrets.DOCKER_USER }}
-  #           password: ${{ secrets.DOCKER_PASSWORD }}
+          - name: Docker Login
+            uses: docker/login-action@v3.0.0
+            with:
+              username: ${{ secrets.DOCKER_USER }}
+              password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #       - name: Pull Docker
-  #         run: |
-  #           docker pull jorgeavm/laboratorio-final-devsecops:latest
-          
-  #       - name: Run Trivy Scan
-  #         uses: aquasecurity/trivy-action@master
-  #         with:
-  #           image-ref: 'jorgeavm/laboratorio-final-devsecops:latest'
-  #           format: 'table'
+          - name: Pull Docker
+            run: |
+              docker pull jorgeavm/laboratorio-final-devsecops:latest
+            
+          - name: Run Trivy Scan
+            uses: aquasecurity/trivy-action@master
+            with:
+              image-ref: 'jorgeavm/laboratorio-final-devsecops:latest'
+              format: 'table'
 
 
   
-    deploy_local:
+    deploy_ec2:
       runs-on: ubuntu-latest
       #needs: DockerScan
 
@@ -241,50 +241,3 @@ jobs:
       # Limpiar Claves SSH (Opcional)
       - name: Limpiar la Clave SSH
         run: rm -f id_rsa
-
-
-      # steps:
-      # - name: Configurar Docker Context
-      #   run: |
-      #     docker context create remote-mac --docker "host=tcp://${{ secrets.MAC_HOST }}:2376"
-      #     docker context use remote-mac
-
-      # - name: Desplegar con Docker Context
-      #   run: |
-      #     docker pull jorgeavm/laboratorio-final-devsecops:latest
-      #     docker stop devsecops-container-lf || true
-      #     docker rm devsecops-container-lf || true
-      #     docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-
-      # steps:
-      #   # Forzar Google DNS
-      #   - name: Configurar DNS
-      #     run: |
-      #       sudo bash -c 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
-
-      #   # Configurar la clave SSH y known_hosts
-      #   - name: Configurar SSH Key
-      #     run: |
-      #       echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-      #       chmod 600 id_rsa
-      #       mkdir -p ~/.ssh
-      #       ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
-
-      #   # Probar Conexión SSH
-      #   - name: Probar Conexión
-      #     run: |
-      #       ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'" || exit 0
-
-      #   # Desplegar usando Appleboy SSH action
-      #   - name: Deploy con Appleboy SSH
-      #     uses: appleboy/ssh-action@v1.0.3
-      #     with:
-      #       host: ${{ secrets.MAC_HOST }}
-      #       username: ${{ secrets.MAC_USER }}
-      #       key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #       script: |
-      #         echo "Conectado al Servidor Remoto"
-      #         docker pull jorgeavm/laboratorio-final-devsecops:latest
-      #         docker stop devsecops-container-lf || true
-      #         docker rm devsecops-container-lf || true
-      #         docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
