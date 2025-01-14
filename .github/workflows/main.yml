@@ -206,7 +206,7 @@ jobs:
       #needs: DockerScan
 
       steps:
-      # Clonar Código
+      # Clonar el Código
       - name: Checkout del Repositorio
         uses: actions/checkout@v4
 
