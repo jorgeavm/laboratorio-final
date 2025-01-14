@@ -163,6 +163,13 @@ jobs:
             --failOnCVSS 7 \
             --enableRetired || echo "Dependency Check terminó con errores, reportando."
 
+          # Evaluar el código de salida
+          if [ $? -ne 0 ]; then
+              echo "Se encontraron vulnerabilidades críticas, revisa los informes."
+          else
+              echo "Análisis completado sin vulnerabilidades críticas."
+          fi
+
       - name: Upload Test Result
         uses: actions/upload-artifact@master
         with:
