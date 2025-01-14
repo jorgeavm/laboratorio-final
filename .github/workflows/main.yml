@@ -206,17 +206,55 @@ jobs:
       #needs: DockerScan
 
       steps:
-      - name: Configurar Docker Context
-        run: |
-          docker context create remote-mac --docker "host=tcp://${{ secrets.MAC_HOST }}:2376"
-          docker context use remote-mac
+      # 1. Clonar el Código
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v4
 
-      - name: Desplegar con Docker Context
+      # 2. Configurar Buildx para Compilaciones Avanzadas
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Autenticar en Docker Hub
+      - name: Autenticar en Docker Hub
         run: |
-          docker pull jorgeavm/laboratorio-final-devsecops:latest
-          docker stop devsecops-container-lf || true
-          docker rm devsecops-container-lf || true
-          docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 5. Configurar SSH para EC2
+      - name: Configurar Clave SSH
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      # 6. Desplegar la Aplicación en EC2 (TypeScript)
+      - name: Desplegar Aplicación en EC2
+        run: |
+          ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
+            # Descargar y ejecutar la imagen
+            docker pull ${{ secrets.DOCKER_USERNAME }}/laboratorio-final-devsecops:latest
+            docker stop typescript-app || true
+            docker rm typescript-app || true
+            run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+          EOF
+
+      # 7. Limpiar Claves SSH (Opcional)
+      - name: Limpiar la Clave SSH
+        run: rm -f id_rsa
+
+
+      # steps:
+      # - name: Configurar Docker Context
+      #   run: |
+      #     docker context create remote-mac --docker "host=tcp://${{ secrets.MAC_HOST }}:2376"
+      #     docker context use remote-mac
+
+      # - name: Desplegar con Docker Context
+      #   run: |
+      #     docker pull jorgeavm/laboratorio-final-devsecops:latest
+      #     docker stop devsecops-container-lf || true
+      #     docker rm devsecops-container-lf || true
+      #     docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
 
       # steps:
       #   # Forzar Google DNS
