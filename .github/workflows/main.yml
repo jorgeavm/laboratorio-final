@@ -162,7 +162,7 @@ jobs:
           format: 'HTML'
           args: >
             --out ./reports
-            --failOnCVSS 7
+            --failOnCVSS 0
             --enableRetired
 
       - name: Capture Scan Result
