@@ -138,7 +138,7 @@ jobs:
       - name: Upload Test Result
         uses: actions/upload-artifact@master
         with:
-          name: Depcheck Report
+          name: Reporte Dependency Check
           path: ./reports
         
 
@@ -204,8 +204,8 @@ jobs:
           format: 'table'
 
 
-  deploy_ec2:
-    runs-on: ubuntu-latest
+  DeployEC2:
+    runs-on: ubuntu-24.04
     needs: DockerScan
 
     steps:
