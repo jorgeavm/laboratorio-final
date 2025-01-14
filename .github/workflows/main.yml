@@ -204,28 +204,25 @@ jobs:
       #needs: DockerScan
 
       steps:
-      # Checkout del repositorio
+      # 1. Checkout del código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Configurar la clave privada SSH
-      - name: Setup SSH Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-          chmod 600 id_rsa
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
+      # 2. Configurar el agente SSH y añadir la clave privada
+      - name: Setup SSH Key with webfactory/ssh-agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      #  Ejecutar comando SSH manualmente
-      - name: Connect and Deploy via SSH
+      # 3. Ejecutar comandos SSH de forma segura
+      - name: SSH into the Server and Deploy
         run: |
-          ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
-            echo "Connected successfully!"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
+            echo "Connected to server"
             docker pull jorgeavm/laboratorio-final-devsecops:latest
             docker stop devsecops-container-lf || true
             docker rm devsecops-container-lf || true
             docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
           EOF
 
-
-  
+      
