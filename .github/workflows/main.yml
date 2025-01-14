@@ -134,13 +134,13 @@ jobs:
             --out ./reports
             --failOnCVSS 7
             --enableRetired
-
-      # Validar si Hubo Errores en el Análisis SCA
-      - name: Detener el Workflow si se Detectan Vulnerabilidades
-        if: steps.Depcheck.outcome == 'failure'  # Evaluación directa del paso anterior
+      
+      - name: Detener si Hay Vulnerabilidades
         run: |
-          echo "Se detectaron vulnerabilidades críticas en Dependency Check. Deteniendo el pipeline."
-          exit 1
+          if [ $? -ne 0 ]; then
+            echo "Vulnerabilidades críticas detectadas en Dependency Check."
+            exit 1
+          fi
 
       - name: Upload Test Result
         uses: actions/upload-artifact@master
