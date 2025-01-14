@@ -171,8 +171,8 @@ jobs:
           # Guardar el código de salida en una variable
           EXIT_CODE=$?
 
-          echo "After: $RESULT"
-          echo "After: ${RESULT}"
+          echo "After: $EXIT_CODE"
+          echo "After: ${EXIT_CODE}"
 
           # Evaluar el resultado
           if [ $EXIT_CODE -eq 0 ]; then
