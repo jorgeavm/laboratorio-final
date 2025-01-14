@@ -151,43 +151,53 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
-      - name: Ejecutar OWASP Dependency-Check
+      - name: Dependency Check
+        uses: dependency-check/Dependency-Check_Action@1.1.0
+        env:
+          JAVA_HOME: /opt/jdk
         id: depcheck
-        run: |
-          curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-          unzip dependency-check-8.4.0-release.zip
+        with:
+          project: '${{ github.event.repository.name }}'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --out ./reports
+            --failOnCVSS 7
+            --enableRetired
+
+      # - name: Ejecutar OWASP Dependency-Check
+      #   id: depcheck
+      #   run: |
+      #     curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+      #     unzip dependency-check-8.4.0-release.zip
           
-
+      #     # Ejecutar Dependency Check con failOnCVSS
+      #     ./dependency-check/bin/dependency-check.sh \
+      #       --project "MyProject" \
+      #       --scan . \
+      #       --out reports \
+      #       --failOnCVSS 7 \
+      #       --enableRetired || echo "Dependency Check terminó con errores, reportando."
           
-          # Ejecutar Dependency Check con failOnCVSS
-          ./dependency-check/bin/dependency-check.sh \
-            --project "MyProject" \
-            --scan . \
-            --out reports \
-            --failOnCVSS 7 \
-            --enableRetired || echo "Dependency Check terminó con errores, reportando."
+      #     # Guardar el código de salida en una variable
+      #     EXIT_CODE=$?
 
-          
-          # Guardar el código de salida en una variable
-          EXIT_CODE=$?
+      #     echo "After: $EXIT_CODE"
+      #     echo "After: ${EXIT_CODE}"
 
-          echo "After: $EXIT_CODE"
-          echo "After: ${EXIT_CODE}"
+      #     # Evaluar el resultado
+      #     if [ $EXIT_CODE -eq 0 ]; then
+      #         echo "El escaneo fue exitoso."
+      #     else
+      #         echo "Se encontraron vulnerabilidades críticas o errores. Código de salida: $EXIT_CODE"
+      #     fi
 
-          # Evaluar el resultado
-          if [ $EXIT_CODE -eq 0 ]; then
-              echo "El escaneo fue exitoso."
-          else
-              echo "Se encontraron vulnerabilidades críticas o errores. Código de salida: $EXIT_CODE"
-          fi
-
-
-          # Evaluar el código de salida
-          if [ $? -ne 0 ]; then
-              echo "Se encontraron vulnerabilidades críticas, revisa los informes."
-          else
-              echo "Análisis completado sin vulnerabilidades críticas."
-          fi
+      #     # Evaluar el código de salida
+      #     if [ $? -ne 0 ]; then
+      #         echo "Se encontraron vulnerabilidades críticas, revisa los informes."
+      #     else
+      #         echo "Análisis completado sin vulnerabilidades críticas."
+      #     fi
 
       - name: Upload Test Result
         uses: actions/upload-artifact@master
