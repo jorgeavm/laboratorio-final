@@ -217,7 +217,7 @@ jobs:
       # 3. Autenticar en Docker Hub
       - name: Autenticar en Docker Hub
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
       # 5. Configurar SSH para EC2
       - name: Configurar Clave SSH
@@ -232,7 +232,7 @@ jobs:
         run: |
           ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
             # Descargar y ejecutar la imagen
-            docker pull ${{ secrets.DOCKER_USERNAME }}/laboratorio-final-devsecops:latest
+            docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
             docker stop typescript-app || true
             docker rm typescript-app || true
             run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
