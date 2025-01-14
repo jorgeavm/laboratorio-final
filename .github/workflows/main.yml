@@ -226,7 +226,7 @@ jobs:
           run: |
             sudo bash -c 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
 
-        # Configurar la Clave SSH y known_hosts
+        # Configurar la clave SSH y known_hosts
         - name: Configurar SSH Key
           run: |
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
