@@ -235,7 +235,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
             docker stop devsecops-container-lf || true
             docker rm devsecops-container-lf || true
-            docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+            docker run --name devsecops-container-lf -d -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
           EOF
 
       # 7. Limpiar Claves SSH (Opcional)
