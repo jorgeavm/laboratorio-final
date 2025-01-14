@@ -205,21 +205,6 @@ jobs:
       runs-on: ubuntu-latest
       #needs: DockerScan
 
-      # steps:
-      #   - name: Deploy Using SSH (Appleboy)
-      #     uses: appleboy/ssh-action@v1.0.3
-      #     with:
-      #       host: ${{ secrets.MAC_HOST }}
-      #       username: ${{ secrets.MAC_USER }}
-      #       key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #       port: 22
-      #       script: |
-      #         echo "Conexión SSH exitosa"
-      #         docker pull jorgeavm/laboratorio-final-devsecops:latest
-      #         docker stop devsecops-container-lf || true
-      #         docker rm devsecops-container-lf || true
-      #         docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-
       steps:
         # Forzar Google DNS
         - name: Configurar DNS
