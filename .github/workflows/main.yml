@@ -199,33 +199,54 @@ jobs:
   #           image-ref: 'jorgeavm/laboratorio-final-devsecops:latest'
   #           format: 'table'
 
+
+  
   deploy_local:
       runs-on: ubuntu-latest
       #needs: DockerScan
 
-      steps:
-      # 1. Checkout del repositorio
+      # steps:
+      # # 1. Checkout del repositorio
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
+
+      # # 2. Configurar la clave privada SSH
+      # - name: Setup SSH Key
+      #   run: |
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+      #     chmod 600 id_rsa
+      #     mkdir -p ~/.ssh
+      #     ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
+
+      # # 3. Ejecutar comandos SSH manualmente
+      # - name: Connect and Deploy via SSH
+      #   run: |
+      #     ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
+      #       echo "Connected successfully!"
+      #       docker pull jorgeavm/laboratorio-final-devsecops:latest
+      #       docker stop devsecops-container-lf || true
+      #       docker rm devsecops-container-lf || true
+      #       docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+      #     EOF
+
+     steps:
+      # 1. Checkout del código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Configurar la clave privada SSH
-      - name: Setup SSH Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-          chmod 600 id_rsa
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
-
-      # 3. Ejecutar comandos SSH manualmente
-      - name: Connect and Deploy via SSH
-        run: |
-          ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
-            echo "Connected successfully!"
+      # 2. Conectar vía SSH usando una acción alternativa
+      - name: Connect and Deploy using container-tools
+        uses: container-tools/ssh-run-action@v2
+        with:
+          host: ${{ secrets.MAC_HOST }}
+          username: ${{ secrets.MAC_USER }}
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command: |
+            echo "Connected!"
             docker pull jorgeavm/laboratorio-final-devsecops:latest
             docker stop devsecops-container-lf || true
             docker rm devsecops-container-lf || true
             docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-          EOF
 
 
       # steps:
