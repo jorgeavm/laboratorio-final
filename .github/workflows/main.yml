@@ -157,20 +157,30 @@ jobs:
           curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
           unzip dependency-check-8.4.0-release.zip
           
-          echo "Before: $RESULT"
-          echo "Before: ${RESULT}"
+
           
           # Ejecutar Dependency Check con failOnCVSS
-          RESULT=$(./dependency-check/bin/dependency-check.sh \
+          ./dependency-check/bin/dependency-check.sh \
             --project "MyProject" \
             --scan . \
             --out reports \
             --failOnCVSS 7 \
-            --enableRetired 2>&1 || echo "Dependency Check terminó con errores, reportando.")
+            --enableRetired 2>&1 || echo "Dependency Check terminó con errores, reportando."
 
           
+          # Guardar el código de salida en una variable
+          EXIT_CODE=$?
+
           echo "After: $RESULT"
           echo "After: ${RESULT}"
+
+          # Evaluar el resultado
+          if [ $EXIT_CODE -eq 0 ]; then
+              echo "El escaneo fue exitoso."
+          else
+              echo "Se encontraron vulnerabilidades críticas o errores. Código de salida: $EXIT_CODE"
+          fi
+
 
           # Evaluar el código de salida
           if [ $? -ne 0 ]; then
