@@ -166,7 +166,7 @@ jobs:
             --scan . \
             --out reports \
             --failOnCVSS 7 \
-            --enableRetired || echo "Dependency Check terminó con errores, reportando.")
+            --enableRetired 2>&1 || echo "Dependency Check terminó con errores, reportando.")
 
           
           echo "After: $RESULT"
