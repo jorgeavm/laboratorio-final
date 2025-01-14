@@ -206,20 +206,20 @@ jobs:
       #needs: DockerScan
 
       steps:
-      # 1. Clonar el Código
+      # Clonar el Código
       - name: Checkout del Repositorio
         uses: actions/checkout@v4
 
-      # 2. Configurar Buildx para Compilaciones Avanzadas
+      # Configurar Buildx para Compilaciones Avanzadas
       - name: Configurar Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Autenticar en Docker Hub
+      # Autenticar en Docker Hub
       - name: Autenticar en Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-      # 5. Configurar SSH para EC2
+      # Configurar SSH para EC2
       - name: Configurar Clave SSH
         run: |
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > id_rsa
@@ -227,7 +227,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      # 6. Desplegar la Aplicación en EC2 (TypeScript)
+      # Desplegar la Aplicación en EC2 (TypeScript)
       - name: Desplegar Aplicación en AWS EC2
         run: |
           ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
@@ -238,7 +238,7 @@ jobs:
             docker run --name devsecops-container-lf -d -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
           EOF
 
-      # 7. Limpiar Claves SSH (Opcional)
+      # Limpiar Claves SSH (Opcional)
       - name: Limpiar la Clave SSH
         run: rm -f id_rsa
 
