@@ -233,8 +233,8 @@ jobs:
           ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
             # Descargar y ejecutar la imagen
             docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
-            docker stop typescript-app || true
-            docker rm typescript-app || true
+            docker stop devsecops-container-lf || true
+            docker rm devsecops-container-lf || true
             run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
           EOF
 
