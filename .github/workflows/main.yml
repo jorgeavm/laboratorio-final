@@ -215,25 +215,25 @@ jobs:
         - name: Configurar SSH Key
           run: |
             echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > id_rsa
-            chmod 600 id_rsa
-            mkdir -p ~/.ssh
-            ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
+            #chmod 600 id_rsa
+            #mkdir -p ~/.ssh
+            #ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
 
-        # Probar la conexión SSH
-        - name: Probar Conexión
-          run: |
-            ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
+        # # Probar la conexión SSH
+        # - name: Probar Conexión
+        #   run: |
+        #     ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
 
-        # Desplegar usando Appleboy SSH Action
-        - name: Deploy con Appleboy SSH
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.MAC_HOST }}
-            username: ${{ secrets.MAC_USER }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            script: |
-              echo "Conectado al Servidor Remoto"
-              docker pull jorgeavm/laboratorio-final-devsecops:latest
-              docker stop devsecops-container-lf || true
-              docker rm devsecops-container-lf || true
-              docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+        # # Desplegar usando Appleboy SSH Action
+        # - name: Deploy con Appleboy SSH
+        #   uses: appleboy/ssh-action@v1.0.3
+        #   with:
+        #     host: ${{ secrets.MAC_HOST }}
+        #     username: ${{ secrets.MAC_USER }}
+        #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+        #     script: |
+        #       echo "Conectado al Servidor Remoto"
+        #       docker pull jorgeavm/laboratorio-final-devsecops:latest
+        #       docker stop devsecops-container-lf || true
+        #       docker rm devsecops-container-lf || true
+        #       docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
