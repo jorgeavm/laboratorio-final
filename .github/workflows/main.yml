@@ -217,7 +217,7 @@ jobs:
             echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > id_rsa
             chmod 600 id_rsa
             mkdir -p ~/.ssh
-            ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts || exit 0
+            ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
 
         # Probar Conexión SSH
         - name: Probar Conexión
