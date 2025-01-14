@@ -216,7 +216,7 @@ jobs:
           run: |
             echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > id_rsa
             chmod 600 id_rsa
-            #mkdir -p ~/.ssh
+            mkdir -p ~/.ssh
             #ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
 
         # # Probar la conexión SSH
