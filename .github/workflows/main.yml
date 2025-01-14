@@ -239,7 +239,7 @@ jobs:
           run: |
             ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
 
-        # Desplegar Usando Appleboy SSH Action
+        # Desplegar usando Appleboy SSH Action
         - name: Deploy con Appleboy SSH
           uses: appleboy/ssh-action@v1.0.3
           with:
