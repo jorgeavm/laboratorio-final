@@ -229,7 +229,7 @@ jobs:
         # Configurar la clave SSH y known_hosts
         - name: Configurar SSH Key
           run: |
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > id_rsa
             chmod 600 id_rsa
             mkdir -p ~/.ssh
             ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
