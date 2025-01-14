@@ -204,17 +204,17 @@ jobs:
       #needs: DockerScan
 
       steps:
-      # 1. Checkout del código
+      # Checkout del código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Configurar el agente SSH y añadir la clave privada
+      # Configurar el agente SSH y añadir la clave privada
       - name: Setup SSH Key with webfactory/ssh-agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. Ejecutar comandos SSH de forma segura
+      # Ejecutar comandos SSH de forma segura
       - name: SSH into the Server and Deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
