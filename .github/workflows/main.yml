@@ -165,6 +165,10 @@ jobs:
             --failOnCVSS 7
             --enableRetired
 
+      - name: Capture Scan Result
+        run: |
+          echo "El resultado del escaneo fue: ${{ steps.depcheck.outcome }}"
+
       # - name: Ejecutar OWASP Dependency-Check
       #   id: depcheck
       #   run: |
