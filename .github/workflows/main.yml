@@ -150,7 +150,7 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: Ejecutar OWASP Dependency-Check
-        id: Depcheck
+        id: depcheck
         run: |
           curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
           unzip dependency-check-8.4.0-release.zip
@@ -180,7 +180,7 @@ jobs:
       #     fi
 
       - name: Detener el Workflow si Hubo Vulnerabilidades Críticas
-        if: steps.Depcheck.outcome == 'failure'
+        if: steps.depcheck.outcome == 'failure'
         run: |
           echo "Se encontraron vulnerabilidades críticas en Dependency Check. Deteniendo el pipeline."
           exit 1
