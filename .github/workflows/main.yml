@@ -230,23 +230,37 @@ jobs:
       #     EOF
 
       steps:
-        # 1. Checkout del código
-        - name: Checkout code
-          uses: actions/checkout@v4
-
-        # 2. Conectar vía SSH usando una acción alternativa
-        - name: Connect and Deploy using container-tools
-          uses: container-tools/ssh-run-action@v2
+        - name: Deploy Using SSH (Appleboy)
+          uses: appleboy/ssh-action@v1.0.3
           with:
             host: ${{ secrets.MAC_HOST }}
             username: ${{ secrets.MAC_USER }}
-            private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-            command: |
-              echo "Connected!"
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+              echo "Conexión SSH exitosa"
               docker pull jorgeavm/laboratorio-final-devsecops:latest
               docker stop devsecops-container-lf || true
               docker rm devsecops-container-lf || true
               docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+
+      # steps:
+      #   # 1. Checkout del código
+      #   - name: Checkout code
+      #     uses: actions/checkout@v4
+
+      #   # 2. Conectar vía SSH usando una acción alternativa
+      #   - name: Connect and Deploy using container-tools
+      #     uses: container-tools/ssh-run-action@v2
+      #     with:
+      #       host: ${{ secrets.MAC_HOST }}
+      #       username: ${{ secrets.MAC_USER }}
+      #       private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #       command: |
+      #         echo "Connected!"
+      #         docker pull jorgeavm/laboratorio-final-devsecops:latest
+      #         docker stop devsecops-container-lf || true
+      #         docker rm devsecops-container-lf || true
+      #         docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
 
 
       # steps:
