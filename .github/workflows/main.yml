@@ -228,7 +228,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       # 6. Desplegar la Aplicación en EC2 (TypeScript)
-      - name: Desplegar Aplicación en EC2
+      - name: Desplegar Aplicación en AWS EC2
         run: |
           ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
             # Descargar y ejecutar la imagen
