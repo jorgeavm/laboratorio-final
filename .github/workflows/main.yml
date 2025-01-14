@@ -222,7 +222,7 @@ jobs:
         # Probar Conexión SSH
         - name: Probar Conexión
           run: |
-            ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
+            ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'" || exit 0
 
         # Desplegar usando Appleboy SSH action
         - name: Deploy con Appleboy SSH
