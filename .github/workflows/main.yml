@@ -133,8 +133,14 @@ jobs:
           args: >
             --out ./reports
             --failOnCVSS 7
-            --failOnCVSS 7
-            --enableRetired || exit 1
+            --enableRetired
+
+      # Detener el Pipeline si se Detectan Vulnerabilidades Críticas
+      - name: Falla si se Detectan Vulnerabilidades Críticas
+        if: failure()  # Esta línea asegura que el workflow se detenga si falla el paso anterior
+        run: |
+          echo "¡Vulnerabilidades Críticas Detectadas en Dependency Check!. Deteniendo el pipeline."
+          exit 1
 
       - name: Upload Test Result
         uses: actions/upload-artifact@master
