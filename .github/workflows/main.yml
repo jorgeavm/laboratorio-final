@@ -206,84 +206,49 @@ jobs:
       #needs: DockerScan
 
       # steps:
-      # # 1. Checkout del repositorio
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
-
-      # # 2. Configurar la clave privada SSH
-      # - name: Setup SSH Key
-      #   run: |
-      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-      #     chmod 600 id_rsa
-      #     mkdir -p ~/.ssh
-      #     ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
-
-      # # 3. Ejecutar comandos SSH manualmente
-      # - name: Connect and Deploy via SSH
-      #   run: |
-      #     ssh -i id_rsa ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
-      #       echo "Connected successfully!"
-      #       docker pull jorgeavm/laboratorio-final-devsecops:latest
-      #       docker stop devsecops-container-lf || true
-      #       docker rm devsecops-container-lf || true
-      #       docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-      #     EOF
-
-      steps:
-        - name: Deploy Using SSH (Appleboy)
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.MAC_HOST }}
-            username: ${{ secrets.MAC_USER }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            port: 22
-            script: |
-              echo "Conexión SSH exitosa"
-              docker pull jorgeavm/laboratorio-final-devsecops:latest
-              docker stop devsecops-container-lf || true
-              docker rm devsecops-container-lf || true
-              docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-
-      # steps:
-      #   # 1. Checkout del código
-      #   - name: Checkout code
-      #     uses: actions/checkout@v4
-
-      #   # 2. Conectar vía SSH usando una acción alternativa
-      #   - name: Connect and Deploy using container-tools
-      #     uses: container-tools/ssh-run-action@v2
+      #   - name: Deploy Using SSH (Appleboy)
+      #     uses: appleboy/ssh-action@v1.0.3
       #     with:
       #       host: ${{ secrets.MAC_HOST }}
       #       username: ${{ secrets.MAC_USER }}
-      #       private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #       command: |
-      #         echo "Connected!"
+      #       key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #       port: 22
+      #       script: |
+      #         echo "Conexión SSH exitosa"
       #         docker pull jorgeavm/laboratorio-final-devsecops:latest
       #         docker stop devsecops-container-lf || true
       #         docker rm devsecops-container-lf || true
       #         docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
 
+    steps:
+      # Forzar Google DNS
+      - name: Configurar DNS
+        run: |
+          sudo bash -c 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
 
-      # steps:
-      # # Checkout del código
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
+      # Configurar la Clave SSH y known_hosts
+      - name: Configurar SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.MAC_HOST }} >> ~/.ssh/known_hosts
 
-      # # Configurar el agente SSH y añadir la clave privada
-      # - name: Setup SSH Key with webfactory/ssh-agent
-      #   uses: webfactory/ssh-agent@v0.5.4
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # Probar la Conexión SSH
+      - name: Probar Conexión
+        run: |
+          ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} "echo 'Conexión SSH Exitosa'"
 
-      # # Ejecutar comandos SSH de forma segura
-      # - name: SSH into the Server and Deploy
-      #   run: |
-      #     ssh -o StrictHostKeyChecking=no ${{ secrets.MAC_USER }}@${{ secrets.MAC_HOST }} <<EOF
-      #       echo "Connected to server"
-      #       docker pull jorgeavm/laboratorio-final-devsecops:latest
-      #       docker stop devsecops-container-lf || true
-      #       docker rm devsecops-container-lf || true
-      #       docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-      #     EOF
-
-      
+      # Desplegar Usando Appleboy SSH Action
+      - name: Deploy con Appleboy SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.MAC_HOST }}
+          username: ${{ secrets.MAC_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Conectado al Servidor Remoto"
+            docker pull jorgeavm/laboratorio-final-devsecops:latest
+            docker stop devsecops-container-lf || true
+            docker rm devsecops-container-lf || true
+            docker run --name devsecops-container-lf -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
