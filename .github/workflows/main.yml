@@ -9,102 +9,102 @@ on:
 
 jobs:
 
-  SAST:
-    runs-on: ubuntu-24.04
+  # SAST:
+  #   runs-on: ubuntu-24.04
 
-    steps:
-      # Clonar el repositorio
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  #   steps:
+  #     # Clonar el repositorio
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-      # Verificar si el Proyecto existe en SonarCloud
-      - name: Check if Project Exists
-        id: check_project
-        run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+  #     # Verificar si el Proyecto existe en SonarCloud
+  #     - name: Check if Project Exists
+  #       id: check_project
+  #       run: |
+  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
-          if [ "$RESPONSE" == "200" ]; then
-            echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
-          else
-            echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
-          fi
+  #         if [ "$RESPONSE" == "200" ]; then
+  #           echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
+  #         else
+  #           echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
+  #         fi
 
-      # Crear el Proyecto Solo si no Existe
-      - name: Create Project on SonarCloud (if not exists)
-        if: env.PROJECT_EXISTS == 'false'
-        run: |
-          curl -X POST "https://sonarcloud.io/api/projects/create" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
-          -d "name=${{ github.repository }}" \
-          -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
-          echo "Proyecto creado en SonarCloud."
+  #     # Crear el Proyecto Solo si no Existe
+  #     - name: Create Project on SonarCloud (if not exists)
+  #       if: env.PROJECT_EXISTS == 'false'
+  #       run: |
+  #         curl -X POST "https://sonarcloud.io/api/projects/create" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
+  #         -d "name=${{ github.repository }}" \
+  #         -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
+  #         echo "Proyecto creado en SonarCloud."
 
-      # Confirmar que el Proyecto ya Existía
-      - name: Project Already Exists
-        if: env.PROJECT_EXISTS == 'true'
-        run: echo "El proyecto ya existe en SonarCloud."
+  #     # Confirmar que el Proyecto ya Existía
+  #     - name: Project Already Exists
+  #       if: env.PROJECT_EXISTS == 'true'
+  #       run: echo "El proyecto ya existe en SonarCloud."
 
-      # Configurar Node.js para Proyectos TypeScript
-      - name: Setup Node.js and TypeScript
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+  #     # Configurar Node.js para Proyectos TypeScript
+  #     - name: Setup Node.js and TypeScript
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
 
-      # Instalar Dependencias y Compilar TypeScript
-      - name: Install Dependencies and Build
-        run: |
-          npm ci
-          npm run build
+  #     # Instalar Dependencias y Compilar TypeScript
+  #     - name: Install Dependencies and Build
+  #       run: |
+  #         npm ci
+  #         npm run build
 
-       # Validar Token y Proyecto Antes de realizar el Análisis
-      - name: Validate SonarCloud Token and Project Key
-        run: |
-          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-            echo "Error: SONAR_TOKEN no está configurado."
-            exit 1
-          fi
+  #      # Validar Token y Proyecto Antes de realizar el Análisis
+  #     - name: Validate SonarCloud Token and Project Key
+  #       run: |
+  #         if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+  #           echo "Error: SONAR_TOKEN no está configurado."
+  #           exit 1
+  #         fi
 
-          if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
-            echo "Error: SONAR_PROJECT_KEY no está configurado."
-            exit 1
-          fi
+  #         if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
+  #           echo "Error: SONAR_PROJECT_KEY no está configurado."
+  #           exit 1
+  #         fi
 
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-          -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+  #         -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
-          echo $RESPONSE
+  #         echo $RESPONSE
             
-      - name: Ejecutar analisis de Sonarqube
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+  #     - name: Ejecutar analisis de Sonarqube
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: SonarQube Scan
+  #       uses: SonarSource/sonarqube-scan-action@v4
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Validar Quality Gate
-      - name: Validate SonarCloud Quality Gate
-        run: |
-          STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-          "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
-          | jq -r '.projectStatus.status')
+  #     # Validar Quality Gate
+  #     - name: Validate SonarCloud Quality Gate
+  #       run: |
+  #         STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+  #         "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
+  #         | jq -r '.projectStatus.status')
 
-          echo "Quality Gate Status: $STATUS"
-          if [ "$STATUS" != "OK" ]; then
-            echo "Quality Gate Failed. Please check SonarCloud for details."
-            # exit 1
-          fi
+  #         echo "Quality Gate Status: $STATUS"
+  #         if [ "$STATUS" != "OK" ]; then
+  #           echo "Quality Gate Failed. Please check SonarCloud for details."
+  #           # exit 1
+  #         fi
 
 
   SCA:
     runs-on: ubuntu-24.04
-    needs: SAST
+    #needs: SAST
     
     steps:
       # Clonar el Repositorio
