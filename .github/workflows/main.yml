@@ -133,7 +133,6 @@ jobs:
           args: >
             --out ./reports
             --failOnCVSS 7
-            --enableRetired
 
       - name: Upload Test Result
         uses: actions/upload-artifact@master
