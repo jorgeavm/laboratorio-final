@@ -162,7 +162,7 @@ jobs:
           format: 'HTML'
           args: >
             --out ./reports
-            --failOnCVSS 0
+            --failOnCVSS 7
             --enableRetired
 
       - name: Capture Scan Result
@@ -224,6 +224,16 @@ jobs:
         run: |
           echo "Se encontraron vulnerabilidades críticas en Dependency Check. Deteniendo el pipeline."
           exit 1
+        
+      - name: Check for Vulnerabilities in HTML Report
+        run: |
+          # Busca el texto "Vulnerable Dependencies" con un número mayor a 0
+          if grep -q "Vulnerable Dependencies: [1-9]" ./reports/ReporteDependencyCheck.html; then
+            echo "Se encontraron vulnerabilidades críticas. Fallando el pipeline."
+            exit 1
+          else
+            echo "No se encontraron vulnerabilidades."
+          fi
         
 
   DockerBuild:
