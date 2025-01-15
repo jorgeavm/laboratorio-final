@@ -234,8 +234,9 @@ jobs:
         run: |
           # Busca el texto "Vulnerable Dependencies" con un número mayor a 0
           sudo apt-get update && sudo apt-get install -y lynx
-          lynx -dump ./reports/dependency-check-report.html > ./reports/plain-text-report.txt
-          if grep -q "Vulnerable Dependencies: [1-9]" ./reports/plain-text-report.txt; then
+          mkdir -p ./reports-plain
+          lynx -dump ./reports/dependency-check-report.html > ./reports-plain/plain-text-report.txt
+          if grep -q "Vulnerable Dependencies: [1-9]" ./reports-plain/plain-text-report.txt; then
             echo "Se encontraron vulnerabilidades críticas. Fallando el pipeline."
             exit 1
           else
