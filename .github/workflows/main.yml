@@ -161,7 +161,7 @@ jobs:
           path: '.'
           format: 'HTML'
           args: >
-            --out ./reports/ReporteDependencyCheck.html
+            --out ./reports
             --failOnCVSS 7
             --enableRetired
 
@@ -232,7 +232,7 @@ jobs:
       - name: Check for Vulnerabilities in HTML Report
         run: |
           # Busca el texto "Vulnerable Dependencies" con un número mayor a 0
-          if grep -q "Vulnerable Dependencies: [1-9]" ./reports/ReporteDependencyCheck.html; then
+          if grep -q "Vulnerable Dependencies: [1-9]" ./reports/dependency-check-report.html; then
             echo "Se encontraron vulnerabilidades críticas. Fallando el pipeline."
             exit 1
           else
