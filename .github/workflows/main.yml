@@ -231,12 +231,15 @@ jobs:
       - name: Pull Docker
         run: |
           docker pull jorgeavm/laboratorio-final-devsecops:latest
-        
+
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'jorgeavm/laboratorio-final-devsecops:latest'
           format: 'table'
+          exit-code: 1  # ⚠️ Fallará si se encuentran vulnerabilidades
+          severity: 'CRITICAL,HIGH,MEDIUM'  # Solo fallar con vulnerabilidades críticas, altas y medias
+          ignore-unfixed: true       # Ignorar vulnerabilidades sin solución
 
 
   # DeployEC2:
