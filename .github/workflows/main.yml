@@ -9,216 +9,216 @@ on:
 
 jobs:
 
-  # SAST:
-  #   runs-on: ubuntu-24.04
+  SAST:
+    runs-on: ubuntu-24.04
 
-  #   steps:
-  #     # Clonar el repositorio
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
+    steps:
+      # Clonar el repositorio
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  #     # Verificar si el Proyecto existe en SonarCloud
-  #     - name: Check if Project Exists
-  #       id: check_project
-  #       run: |
-  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-  #         -u "${{ secrets.SONAR_TOKEN }}:" \
-  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+      # Verificar si el Proyecto existe en SonarCloud
+      - name: Check if Project Exists
+        id: check_project
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
-  #         if [ "$RESPONSE" == "200" ]; then
-  #           echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
-  #         else
-  #           echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
-  #         fi
+          if [ "$RESPONSE" == "200" ]; then
+            echo "PROJECT_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "PROJECT_EXISTS=false" >> $GITHUB_ENV
+          fi
 
-  #     # Crear el Proyecto Solo si no Existe
-  #     - name: Create Project on SonarCloud (if not exists)
-  #       if: env.PROJECT_EXISTS == 'false'
-  #       run: |
-  #         curl -X POST "https://sonarcloud.io/api/projects/create" \
-  #         -u "${{ secrets.SONAR_TOKEN }}:" \
-  #         -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
-  #         -d "name=${{ github.repository }}" \
-  #         -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
-  #         echo "Proyecto creado en SonarCloud."
+      # Crear el Proyecto Solo si no Existe
+      - name: Create Project on SonarCloud (if not exists)
+        if: env.PROJECT_EXISTS == 'false'
+        run: |
+          curl -X POST "https://sonarcloud.io/api/projects/create" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          -d "organization=${{ secrets.SONAR_ORGANIZATION }}" \
+          -d "name=${{ github.repository }}" \
+          -d "project=${{ secrets.SONAR_PROJECT_KEY }}"
+          echo "Proyecto creado en SonarCloud."
 
-  #     # Confirmar que el Proyecto ya Existía
-  #     - name: Project Already Exists
-  #       if: env.PROJECT_EXISTS == 'true'
-  #       run: echo "El proyecto ya existe en SonarCloud."
+      # Confirmar que el Proyecto ya Existía
+      - name: Project Already Exists
+        if: env.PROJECT_EXISTS == 'true'
+        run: echo "El proyecto ya existe en SonarCloud."
 
-  #     # Configurar Node.js para Proyectos TypeScript
-  #     - name: Setup Node.js and TypeScript
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18'
+      # Configurar Node.js para Proyectos TypeScript
+      - name: Setup Node.js and TypeScript
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-  #     # Instalar Dependencias y Compilar TypeScript
-  #     - name: Install Dependencies and Build
-  #       run: |
-  #         npm ci
-  #         npm run build
+      # Instalar Dependencias y Compilar TypeScript
+      - name: Install Dependencies and Build
+        run: |
+          npm ci
+          npm run build
 
-  #      # Validar Token y Proyecto Antes de realizar el Análisis
-  #     - name: Validate SonarCloud Token and Project Key
-  #       run: |
-  #         if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-  #           echo "Error: SONAR_TOKEN no está configurado."
-  #           exit 1
-  #         fi
+       # Validar Token y Proyecto Antes de realizar el Análisis
+      - name: Validate SonarCloud Token and Project Key
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "Error: SONAR_TOKEN no está configurado."
+            exit 1
+          fi
 
-  #         if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
-  #           echo "Error: SONAR_PROJECT_KEY no está configurado."
-  #           exit 1
-  #         fi
+          if [ -z "${{ secrets.SONAR_PROJECT_KEY }}" ]; then
+            echo "Error: SONAR_PROJECT_KEY no está configurado."
+            exit 1
+          fi
 
-  #         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-  #         -u "${{ secrets.SONAR_TOKEN }}:" \
-  #         "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+          -u "${{ secrets.SONAR_TOKEN }}:" \
+          "https://sonarcloud.io/api/projects/search?projects=${{ secrets.SONAR_PROJECT_KEY }}")
 
-  #         echo $RESPONSE
+          echo $RESPONSE
             
-  #     - name: Ejecutar analisis de Sonarqube
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Ejecutar analisis de Sonarqube
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-  #     - name: SonarQube Scan
-  #       uses: SonarSource/sonarqube-scan-action@v4
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  #     # Validar Quality Gate
-  #     - name: Validate SonarCloud Quality Gate
-  #       run: |
-  #         STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-  #         "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
-  #         | jq -r '.projectStatus.status')
+      # Validar Quality Gate
+      - name: Validate SonarCloud Quality Gate
+        run: |
+          STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+          "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
+          | jq -r '.projectStatus.status')
 
-  #         echo "Quality Gate Status: $STATUS"
-  #         if [ "$STATUS" != "OK" ]; then
-  #           echo "Quality Gate Failed. Please check SonarCloud for details."
-  #           # exit 1
-  #         fi
+          echo "Quality Gate Status: $STATUS"
+          if [ "$STATUS" != "OK" ]; then
+            echo "Quality Gate Failed. Please check SonarCloud for details."
+            # exit 1
+          fi
 
 
-  # SCA:
-  #   runs-on: ubuntu-24.04
-  #   needs: SAST
-  #   env:
-  #     RESULT: "-1"
+  SCA:
+    runs-on: ubuntu-24.04
+    needs: SAST
+    env:
+      RESULT: "-1"
     
-  #   steps:
-  #     # Clonar el Repositorio
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+    steps:
+      # Clonar el Repositorio
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     # Configurar Node.js y TypeScript
-  #     - name: Setup Node.js and TypeScript
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18'
+      # Configurar Node.js y TypeScript
+      - name: Setup Node.js and TypeScript
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-  #     # Instalar Dependencias del Proyecto
-  #     - name: Install Project Dependencies
-  #       run: npm ci
+      # Instalar Dependencias del Proyecto
+      - name: Install Project Dependencies
+        run: npm ci
 
-  #     # Ejecutar OWASP Dependency-Check con Control
-  #     - name: Instalar .NET 6
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: '6.0.x'
+      # Ejecutar OWASP Dependency-Check con Control
+      - name: Instalar .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
 
-  #     - name: Dependency Check
-  #       uses: dependency-check/Dependency-Check_Action@1.1.0
-  #       env:
-  #         JAVA_HOME: /opt/jdk
-  #       id: depcheck
-  #       with:
-  #         project: '${{ github.event.repository.name }}'
-  #         path: '.'
-  #         format: 'HTML'
-  #         args: >
-  #           --out ./reports
-  #           --failOnCVSS 7
-  #           --enableRetired
+      - name: Dependency Check
+        uses: dependency-check/Dependency-Check_Action@1.1.0
+        env:
+          JAVA_HOME: /opt/jdk
+        id: depcheck
+        with:
+          project: '${{ github.event.repository.name }}'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --out ./reports
+            --failOnCVSS 7
+            --enableRetired
 
-  #     - name: Capture Scan Result
-  #       run: |
-  #         echo "El resultado del escaneo fue: ${{ steps.depcheck.outcome }}"
+      - name: Capture Scan Result
+        run: |
+          echo "El resultado del escaneo fue: ${{ steps.depcheck.outcome }}"
 
-  #     - name: Upload Test Result
-  #       uses: actions/upload-artifact@master
-  #       with:
-  #         name: ReporteDependencyCheck
-  #         path: ./reports
+      - name: Upload Test Result
+        uses: actions/upload-artifact@master
+        with:
+          name: ReporteDependencyCheck
+          path: ./reports
 
-  #     - name: Detener el Workflow si Hubo Vulnerabilidades Críticas
-  #       if: steps.depcheck.outcome == 'failure'
-  #       run: |
-  #         echo "Se encontraron vulnerabilidades críticas en Dependency Check. Deteniendo el pipeline."
-  #         exit 1
+      - name: Detener el Workflow si Hubo Vulnerabilidades Críticas
+        if: steps.depcheck.outcome == 'failure'
+        run: |
+          echo "Se encontraron vulnerabilidades críticas en Dependency Check. Deteniendo el pipeline."
+          exit 1
 
-  #     - name: List Files in Reports Directory
-  #       run: |
-  #         ls -l ./reports/  
+      - name: List Files in Reports Directory
+        run: |
+          ls -l ./reports/  
 
-  #     - name: Check for Vulnerabilities in HTML Report
-  #       run: |
-  #         # Busca el texto "Vulnerable Dependencies" con un número mayor a 0
-  #         sudo apt-get update && sudo apt-get install -y lynx
-  #         mkdir -p ./reports-plain
-  #         lynx -dump ./reports/dependency-check-report.html > ./reports-plain/plain-text-report.txt
-  #         if grep -q "Vulnerable Dependencies: [1-9]" ./reports-plain/plain-text-report.txt; then
-  #           echo "Se encontraron vulnerabilidades críticas. Fallando el pipeline."
-  #           #exit 1
-  #         else
-  #           echo "No se encontraron vulnerabilidades."
-  #         fi
+      - name: Check for Vulnerabilities in HTML Report
+        run: |
+          # Busca el texto "Vulnerable Dependencies" con un número mayor a 0
+          sudo apt-get update && sudo apt-get install -y lynx
+          mkdir -p ./reports-plain
+          lynx -dump ./reports/dependency-check-report.html > ./reports-plain/plain-text-report.txt
+          if grep -q "Vulnerable Dependencies: [1-9]" ./reports-plain/plain-text-report.txt; then
+            echo "Se encontraron vulnerabilidades críticas. Fallando el pipeline."
+            #exit 1
+          else
+            echo "No se encontraron vulnerabilidades."
+          fi
         
 
-  # DockerBuild:
-  #   runs-on: ubuntu-24.04
-  #   needs: SCA
+  DockerBuild:
+    runs-on: ubuntu-24.04
+    needs: SCA
 
-  #   steps:
-  #     # Checkout del código fuente
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      # Checkout del código fuente
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     # Configurar Node.js y compilar TypeScript
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18'
+      # Configurar Node.js y compilar TypeScript
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-  #     - name: Install dependencies and build TypeScript
-  #       run: |
-  #         npm ci
-  #         npm run build
+      - name: Install dependencies and build TypeScript
+        run: |
+          npm ci
+          npm run build
 
-  #     # Autenticación en Docker Hub
-  #     - name: Docker Login
-  #       uses: docker/login-action@v3.0.0
-  #       with:
-  #         username: ${{ secrets.DOCKER_USER }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # Autenticación en Docker Hub
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     # Construcción de la imagen Docker
-  #     - name: Docker Build
-  #       run: |
-  #         ls -R
-  #         docker build --tag jorgeavm/laboratorio-final-devsecops:latest .
+      # Construcción de la imagen Docker
+      - name: Docker Build
+        run: |
+          ls -R
+          docker build --tag jorgeavm/laboratorio-final-devsecops:latest .
 
-  #     # Publicar la imagen en Docker Hub
-  #     - name: Push Docker
-  #       run: |
-  #         docker push jorgeavm/laboratorio-final-devsecops:latest
+      # Publicar la imagen en Docker Hub
+      - name: Push Docker
+        run: |
+          docker push jorgeavm/laboratorio-final-devsecops:latest
 
 
   DockerScan:
     runs-on: ubuntu-24.04
-    #needs: DockerBuild
+    needs: DockerBuild
 
     steps:
 
@@ -242,43 +242,43 @@ jobs:
           ignore-unfixed: true       # Ignorar vulnerabilidades sin solución
 
 
-  # DeployEC2:
-  #   runs-on: ubuntu-24.04
-  #   needs: DockerScan
+  DeployEC2:
+    runs-on: ubuntu-24.04
+    needs: DockerScan
 
-  #   steps:
-  #   # Clonar el Código
-  #   - name: Checkout del Repositorio
-  #     uses: actions/checkout@v4
+    steps:
+    # Clonar el Código
+    - name: Checkout del Repositorio
+      uses: actions/checkout@v4
 
-  #   # Configurar Buildx para Compilaciones Avanzadas
-  #   - name: Configurar Buildx
-  #     uses: docker/setup-buildx-action@v3
+    # Configurar Buildx para Compilaciones Avanzadas
+    - name: Configurar Buildx
+      uses: docker/setup-buildx-action@v3
 
-  #   # Autenticar en Docker Hub
-  #   - name: Autenticar en Docker Hub
-  #     run: |
-  #       echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+    # Autenticar en Docker Hub
+    - name: Autenticar en Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-  #   # Configurar SSH para EC2
-  #   - name: Configurar Clave SSH
-  #     run: |
-  #       echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > id_rsa
-  #       chmod 600 id_rsa
-  #       mkdir -p ~/.ssh
-  #       ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    # Configurar SSH para EC2
+    - name: Configurar Clave SSH
+      run: |
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > id_rsa
+        chmod 600 id_rsa
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-  #   # Desplegar Aplicación en EC2
-  #   - name: Desplegar Aplicación en AWS EC2
-  #     run: |
-  #       ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
-  #         # Descargar y ejecutar la imagen
-  #         docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
-  #         docker stop devsecops-container-lf || true
-  #         docker rm devsecops-container-lf || true
-  #         docker run --name devsecops-container-lf -d -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
-  #       EOF
+    # Desplegar Aplicación en EC2
+    - name: Desplegar Aplicación en AWS EC2
+      run: |
+        ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
+          # Descargar y ejecutar la imagen
+          docker pull ${{ secrets.DOCKER_USER }}/laboratorio-final-devsecops:latest
+          docker stop devsecops-container-lf || true
+          docker rm devsecops-container-lf || true
+          docker run --name devsecops-container-lf -d -p 3000:3000 jorgeavm/laboratorio-final-devsecops:latest
+        EOF
 
-  #   # Limpiar Claves SSH
-  #   - name: Limpiar la Clave SSH
-  #     run: rm -f id_rsa
+    # Limpiar Claves SSH
+    - name: Limpiar la Clave SSH
+      run: rm -f id_rsa
