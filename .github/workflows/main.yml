@@ -227,7 +227,8 @@ jobs:
 
       - name: List Files in Reports Directory
         run: |
-          ls -l ./reports/  
+          ls -l ./reports/
+          chmod +w ./reports  
 
       - name: Check for Vulnerabilities in HTML Report
         run: |
