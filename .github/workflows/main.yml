@@ -161,7 +161,7 @@ jobs:
           path: '.'
           format: 'HTML'
           args: >
-            --out ./reports
+            --out ./reports/ReporteDependencyCheck.html
             --failOnCVSS 7
             --enableRetired
 
