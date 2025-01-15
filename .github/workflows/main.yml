@@ -104,7 +104,7 @@ jobs:
 
   SCA:
     runs-on: ubuntu-24.04
-    #needs: SAST
+    needs: SAST
     env:
       RESULT: "-1"
     
